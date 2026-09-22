@@ -216,3 +216,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Raw Kaggle data (large files - not tracked in Git)
+data/raw/kaggle/
