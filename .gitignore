@@ -219,3 +219,4 @@ __marimo__/
 
 # Raw Kaggle data (large files - not tracked in Git)
 data/raw/
+data/processed/
