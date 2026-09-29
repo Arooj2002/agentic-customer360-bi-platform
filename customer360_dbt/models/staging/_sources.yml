@@ -1,0 +1,16 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data loaded from DummyJSON API and Kaggle CSVs via src/load.py"
+    schema: raw
+    tables:
+      - name: web_users
+      - name: web_products
+      - name: web_reviews
+      - name: web_carts
+      - name: web_cart_items
+      - name: erp_orders
+      - name: erp_order_items
+      - name: erp_customers
+      - name: erp_products
