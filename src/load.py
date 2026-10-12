@@ -153,6 +153,9 @@ def copy_table(engine: Engine, df: pd.DataFrame, table_name: str) -> None:
     # and the previous version of the table stays in place
     with engine.begin() as conn:
         conn.execute(text(f"SET LOCAL statement_timeout = '{LOAD_TIMEOUT}'"))
+        # Drop the old table together with the dbt staging views that depend on it
+        # (plain DROP TABLE from pandas fails); the next dbt run recreates the views
+        conn.execute(text(f"DROP TABLE IF EXISTS {TARGET_SCHEMA}.{table_name} CASCADE"))
         # Create the empty table with column types inferred from the DataFrame
         df.head(0).to_sql(
             table_name, conn, schema=TARGET_SCHEMA, if_exists="replace", index=False
