@@ -3,9 +3,10 @@
 Every task runs the same production scripts used locally, inside the dedicated
 pipeline virtualenv (kept separate from the Airflow virtualenv).
 """
-from datetime import datetime, timedelta
+from datetime import timedelta
 from pathlib import Path
 
+import pendulum
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.sdk import DAG
 
@@ -47,8 +48,8 @@ default_args = {
 with DAG(
     dag_id="customer360_pipeline",
     description="Extract, transform, load into Supabase, then model with dbt",
-    start_date=datetime(2026, 1, 1),
-    schedule=None,  # manual trigger for now; a daily schedule comes after the first full run
+    start_date=pendulum.datetime(2026, 1, 1, tz="Asia/Karachi"),
+    schedule="0 11 * * *",  # every day at 11:00 Pakistan time 
     catchup=False,
     max_active_runs=1,
     default_args=default_args,
