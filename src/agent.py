@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -92,11 +93,20 @@ def validate_sql(sql: str) -> None:
 
 
 def generate_sql(llm: ChatGroq, question: str) -> tuple[str, int]:
-    """Ask the LLM for SQL; return (sql, total_tokens)."""
-    response = llm.invoke([("system", SCHEMA_TEXT), ("human", question)])
+    """Ask the LLM for SQL; retry a couple of times on rate limits."""
+    for attempt in range(1, 4):
+        try:
+            response = llm.invoke([("system", SCHEMA_TEXT), ("human", question)])
+            break
+        except Exception as exc:  # noqa: BLE001
+            is_rate_limit = "429" in str(exc) or "rate" in str(exc).lower()
+            if is_rate_limit and attempt < 3:
+                logger.warning("Rate limited, retrying in %s s", attempt * 10)
+                time.sleep(attempt * 10)
+                continue
+            raise
     tokens = (response.usage_metadata or {}).get("total_tokens", 0)
     return extract_sql(response.content), tokens
-
 
 def run_sql(engine: Engine, sql: str) -> pd.DataFrame:
     """Run validated SQL read-only with a timeout and a row cap."""
