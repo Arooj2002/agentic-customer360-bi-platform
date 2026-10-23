@@ -2,6 +2,8 @@
 
 End-to-end BI platform: API + CSV ingestion, a Pandas transform layer, a Supabase (PostgreSQL) warehouse, dbt star-schema models with tests, and Apache Airflow orchestration. Power BI dashboards and an AI (Text-to-SQL) agent are planned next.
 
+**Live demo:** https://agentic-customer360-bi-platform-b3idib58gw4qjtyks5uwh7.streamlit.app/
+
 ## Architecture
 
 ```
