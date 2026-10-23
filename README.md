@@ -8,39 +8,35 @@ End-to-end BI and AI platform: API + CSV ingestion, a Pandas transform layer, a 
 
 ## Architecture
 
-```
-DummyJSON API + Kaggle CSVs
-        |  extract.py
-        v
-data/raw  ->  transform.py (clean, drop PII, Parquet)  ->  load.py (COPY)
-                                                              |
-                                                              v
-                                        Supabase PostgreSQL: schema raw
-                                                              |  dbt run / dbt test
-                                                              v
-                      analytics_staging (9 views)  ->  analytics_marts (5 tables)
-                                                              |
-                                     +------------------------+----------------+
-                                     v                        v                v
-                                 Power BI          LangChain + Groq        Streamlit
-                              (4-page report)   (read-only Text-to-SQL)   (deployed app)
-
-Apache Airflow runs: extract -> transform -> load -> dbt_run -> dbt_test (daily)
+```mermaid
+flowchart LR
+    A["DummyJSON API<br/>+ Kaggle CSVs"] -->|"Extract<br/>extract.py"| B["data/raw"]
+    B -->|"Transform<br/>transform.py<br/>clean, drop PII, Parquet"| C["data/processed"]
+    C -->|"Load<br/>load.py (COPY)"| D[("Supabase PostgreSQL<br/>schema raw")]
+    D -->|"Model<br/>dbt run + dbt test"| E[("analytics_staging (9 views)<br/>analytics_marts (5 tables)")]
+    E --> F["Power BI<br/>4-page report"]
+    E --> G["LangChain + Groq<br/>read-only Text-to-SQL"]
+    G --> H["Streamlit app<br/>deployed"]
+    E --> H
+    I["Apache Airflow<br/>daily 11:00 PKT"] -.->|"schedules"| B
+    I -.->|"schedules"| D
+    I -.->|"schedules"| E
 ```
 
 Pipeline type: hybrid ETL/ELT. Light cleaning and PII removal happen in Pandas before loading (ETL). Business logic lives in dbt after loading (ELT).
 
 ## Tech stack
 
-| Layer               | Tool                                                     |
-| ------------------- | -------------------------------------------------------- |
-| Extract / Transform | Python, Pandas, requests, PyArrow (Parquet)              |
-| Warehouse           | Supabase (PostgreSQL)                                    |
-| Modeling and tests  | dbt Core (dbt-postgres)                                  |
-| Orchestration       | Apache Airflow 3.3 on WSL2                               |
-| BI                  | Power BI Desktop (DAX)                                   |
-| AI agent            | LangChain, Groq (`openai/gpt-oss-20b`)                   |
-| Web app             | Streamlit, Plotly, deployed on Streamlit Community Cloud |
+| Stage       | Tool                                                    |
+| ----------- | ------------------------------------------------------- |
+| Extract     | Python, requests, Kaggle CSVs, DummyJSON API            |
+| Transform   | Pandas, PyArrow (Parquet), PII removal                  |
+| Load        | SQLAlchemy + psycopg2 (COPY) into Supabase (PostgreSQL) |
+| Model       | dbt Core (dbt-postgres): star schema, tests, grants     |
+| Orchestrate | Apache Airflow 3.3 on WSL2                              |
+| Visualize   | Power BI Desktop (DAX)                                  |
+| AI agent    | LangChain, Groq (`openai/gpt-oss-20b`)                  |
+| Deploy      | Streamlit, Plotly, Streamlit Community Cloud            |
 
 ## Data sources
 
