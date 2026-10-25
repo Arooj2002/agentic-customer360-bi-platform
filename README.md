@@ -4,6 +4,8 @@ End-to-end BI and AI platform: API + CSV ingestion, a Pandas transform layer, a 
 
 **Live demo:** https://agentic-customer360-bi-platform-b3idib58gw4qjtyks5uwh7.streamlit.app/
 
+![Customer 360 BI Platform](docs/images/banner.png)
+
 ![AI Analyst](docs/images/streamlit_ai_analyst.png)
 
 ## Architecture
