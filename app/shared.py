@@ -116,13 +116,14 @@ def render_kpis() -> None:
         ("Return Rate", f"{kpi['return_rate']:.2f}%"),
         ("Cancellation Rate", f"{kpi['cancel_rate']:.2f}%"),
     ]
-    for col, (label, value) in zip(st.columns(6), cards):
-        col.markdown(
-            f'<div class="kpi"><div class="label">{label}</div>'
-            f'<div class="value">{value}</div></div>',
-            unsafe_allow_html=True,
-        )
-
+    for row_cards in (cards[:3], cards[3:]):
+        for col, (label, value) in zip(st.columns(3), row_cards):
+            col.markdown(
+                f'<div class="kpi"><div class="label">{label}</div>'
+                f'<div class="value">{value}</div></div>',
+                unsafe_allow_html=True,
+            )
+        st.write("")
 
 def friendly_error(error: str) -> str:
     """Translate technical errors into messages a business user can act on."""
